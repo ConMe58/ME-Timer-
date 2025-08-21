@@ -1,39 +1,31 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>ME Timer</title>
 
-  <!-- Sagt Browsern, dass die Seite beides korrekt unterstützt -->
+  <!-- System-Theme berücksichtigen -->
   <meta name="color-scheme" content="light dark" />
-
-  <!-- Dynamische Adressleistenfarbe für Light/Dark -->
   <meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff" />
-  <meta name="theme-color" media="(prefers-color-scheme: dark)"  content="#220000" />
+  <meta name="theme-color" media="(prefers-color-scheme: dark)"  content="#000000" />
 
   <style>
-    /* Basis: Variablen für Farben & Abstände */
     :root {
       --bg: #ffffff;
-      --fg: #111111;
-      --muted: rgba(0,0,0,0.6);
-      --gap: 60px;
-      --accent-bg: #f6f6f6;
+      --fg: #000000;
+      --muted: rgba(0,0,0,0.7);
     }
-    /* Automatisch Dark Theme, wenn Gerät dark nutzt */
     @media (prefers-color-scheme: dark) {
       :root {
-        --bg: #220000;          /* dein dunkles Rot-Braun */
+        --bg: #000000;
         --fg: #ffffff;
-        --muted: rgba(255,255,255,0.75);
-        --accent-bg: #2a0a0a;
+        --muted: rgba(255,255,255,0.7);
       }
     }
 
-    /* Grundlayout */
-    html, body { height: 100%; }
-    body {
+    html, body {
+      height: 100%;
       margin: 0;
       background: var(--bg);
       color: var(--fg);
@@ -42,26 +34,20 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: var(--gap);
-      min-height: 100vh;
+      gap: 60px;
       padding: 20px;
       text-align: center;
     }
 
-    /* Blöcke */
     .block { display: flex; flex-direction: column; gap: 12px; }
     h2 { margin: 0; font-size: clamp(18px, 4vw, 28px); font-weight: 700; }
 
-    /* Timer-Zeile: vier Spalten (Tage / Stunden / Minuten / Sekunden) */
     .timer {
       display: grid;
       grid-template-columns: auto auto auto auto;
       gap: 14px;
       justify-content: center;
       align-items: end;
-      background: var(--accent-bg);
-      padding: 12px 16px;
-      border-radius: 12px;
     }
 
     .col { display: flex; flex-direction: column; align-items: center; }
@@ -69,11 +55,10 @@
       font-size: clamp(24px, 10vw, 64px);
       font-weight: 800;
       line-height: 1.05;
-      white-space: nowrap; /* alles in einer Zeile */
+      white-space: nowrap;
     }
     .label {
       font-size: clamp(10px, 3vw, 16px);
-      opacity: 0.8;
       color: var(--muted);
       margin-top: 4px;
       letter-spacing: 0.5px;
@@ -83,26 +68,25 @@
 <body>
   <div class="block">
     <h2>ME seit:</h2>
-    <div class="timer" aria-label="ME seit – Zeit seit Beginn">
-      <div class="col"><div id="d1" class="num" aria-label="Tage">0</div><div class="label">TAGE</div></div>
-      <div class="col"><div id="h1" class="num" aria-label="Stunden">00</div><div class="label">STUNDEN</div></div>
-      <div class="col"><div id="m1" class="num" aria-label="Minuten">00</div><div class="label">MINUTEN</div></div>
-      <div class="col"><div id="s1" class="num" aria-label="Sekunden">00</div><div class="label">SEKUNDEN</div></div>
+    <div class="timer">
+      <div class="col"><div id="d1" class="num">0</div><div class="label">TAGE</div></div>
+      <div class="col"><div id="h1" class="num">00</div><div class="label">STUNDEN</div></div>
+      <div class="col"><div id="m1" class="num">00</div><div class="label">MINUTEN</div></div>
+      <div class="col"><div id="s1" class="num">00</div><div class="label">SEKUNDEN</div></div>
     </div>
   </div>
 
   <div class="block">
     <h2>Very Severe ME seit:</h2>
-    <div class="timer" aria-label="Very Severe ME seit – Zeit seit Beginn">
-      <div class="col"><div id="d2" class="num" aria-label="Tage">0</div><div class="label">TAGE</div></div>
-      <div class="col"><div id="h2" class="num" aria-label="Stunden">00</div><div class="label">STUNDEN</div></div>
-      <div class="col"><div id="m2" class="num" aria-label="Minuten">00</div><div class="label">MINUTEN</div></div>
-      <div class="col"><div id="s2" class="num" aria-label="Sekunden">00</div><div class="label">SEKUNDEN</div></div>
+    <div class="timer">
+      <div class="col"><div id="d2" class="num">0</div><div class="label">TAGE</div></div>
+      <div class="col"><div id="h2" class="num">00</div><div class="label">STUNDEN</div></div>
+      <div class="col"><div id="m2" class="num">00</div><div class="label">MINUTEN</div></div>
+      <div class="col"><div id="s2" class="num">00</div><div class="label">SEKUNDEN</div></div>
     </div>
   </div>
 
   <script>
-    // Startdaten (Deutschland, Winterzeiten bereits mit +01:00)
     const start1 = new Date("2022-12-10T12:00:00+01:00");
     const start2 = new Date("2023-12-23T16:30:00+01:00");
     const pad = n => String(n).padStart(2, "0");
