@@ -1,69 +1,98 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>ME Timer</title>
   <style>
-    body {
-      margin:0;
-      background:#200; /* dunkles Rot-Braun wie bei deinem Screenshot */
-      color:white;
+    :root { --bg:#200; --fg:#fff; }
+    html,body{height:100%}
+    body{
+      margin:0; background:var(--bg); color:var(--fg);
       font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-      display:flex;
-      justify-content:center;
-      align-items:center;
-      height:100vh;
-      text-align:center;
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      gap:56px; padding:16px; text-align:center;
     }
-    .wrap { display:grid; gap:20px; }
-    h1 { font-size:2rem; margin:0; }
-    .row {
-      font-size: clamp(2rem, 12vw, 5rem);
-      font-weight:bold;
-      letter-spacing:2px;
+    .wrap{display:grid; gap:14px; width:100%; max-width:1100px;}
+    h2{margin:0; font-size:clamp(18px,4vw,34px); font-weight:700}
+    .row{
+      font-weight:800; line-height:1.05;
+      white-space:nowrap;            /* niemals umbrechen */
+      display:inline-block;          /* für Breitenmessung */
+      letter-spacing:1px;
+      transform-origin:center;
     }
-    .labels {
-      display:flex;
-      justify-content:space-around;
-      font-size:clamp(0.8rem, 4vw, 1.2rem);
-      opacity:0.8;
+    .labels{
+      display:flex; justify-content:space-between;
+      max-width:800px; margin:0 auto;
+      font-size:clamp(10px,3.5vw,18px); opacity:.85;
     }
+    .labels div{flex:1}
   </style>
 </head>
 <body>
+
   <div class="wrap">
-    <h1>Very Severe ME seit</h1>
-    <div id="time" class="row">000 : 00 : 00 : 00</div>
-    <div class="labels">
-      <div>TAGE</div>
-      <div>STUNDEN</div>
-      <div>MINUTEN</div>
-      <div>SEKUNDEN</div>
-    </div>
+    <h2>ME seit:</h2>
+    <div id="t1" class="row">000 : 00 : 00 : 00</div>
+    <div class="labels"><div>TAGE</div><div>STUNDEN</div><div>MINUTEN</div><div>SEKUNDEN</div></div>
+  </div>
+
+  <div class="wrap">
+    <h2>Very Severe ME seit:</h2>
+    <div id="t2" class="row">000 : 00 : 00 : 00</div>
+    <div class="labels"><div>TAGE</div><div>STUNDEN</div><div>MINUTEN</div><div>SEKUNDEN</div></div>
   </div>
 
   <script>
-    // Startdatum
-    const start = new Date("2023-12-23T16:30:00+01:00");
+    // Startzeiten (Deutschland Winterzeit +01:00)
+    const start1 = new Date("2022-12-10T12:00:00+01:00");
+    const start2 = new Date("2023-12-23T16:30:00+01:00");
+
+    const pad = n => String(n).padStart(2,"0");
+
+    function lineText(diff){
+      const days = Math.floor(diff / 86400);
+      const h = Math.floor((diff % 86400) / 3600);
+      const m = Math.floor((diff % 3600) / 60);
+      const s = Math.floor(diff % 60);
+      return `${days} : ${pad(h)} : ${pad(m)} : ${pad(s)}`;
+    }
 
     function update(){
       const now = Date.now();
-      const diff = Math.floor((now - start.getTime())/1000);
+      document.getElementById("t1").textContent = lineText((now - start1.getTime())/1000);
+      document.getElementById("t2").textContent = lineText((now - start2.getTime())/1000);
+      autoFitAll();
+    }
 
-      const days = Math.floor(diff / 86400);
-      const hrs  = Math.floor((diff % 86400) / 3600);
-      const mins = Math.floor((diff % 3600) / 60);
-      const secs = diff % 60;
+    // Passt die Schriftgröße so an, dass die Zeile in den verfügbaren Platz passt
+    function autoFit(el, maxPx){
+      // Start mit grober Obergrenze proportional zur Breite
+      const startSize = Math.min(96, Math.max(18, Math.floor(maxPx/9)));
+      el.style.fontSize = startSize + "px";
+      // Falls zu breit, schrittweise verkleinern
+      let size = startSize;
+      const limit = 14; // nicht kleiner als 14px
+      while (el.scrollWidth > maxPx && size > limit){
+        size = Math.max(limit, size - 1);
+        el.style.fontSize = size + "px";
+      }
+    }
 
-      const pad = n => String(n).padStart(2,"0");
-
-      document.getElementById("time").textContent =
-        `${days} : ${pad(hrs)} : ${pad(mins)} : ${pad(secs)}`;
+    function autoFitAll(){
+      // verfügbare Breite = Breite des Containers minus etwas Rand
+      document.querySelectorAll('.wrap .row').forEach(row=>{
+        const container = row.parentElement; // .wrap
+        const maxPx = container.clientWidth - 24; // 24px Puffer
+        autoFit(row, maxPx);
+      });
     }
 
     update();
     setInterval(update,1000);
+    addEventListener('resize', autoFitAll);
+    addEventListener('orientationchange', autoFitAll);
   </script>
 </body>
 </html>
