@@ -5,78 +5,54 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>ME Timer</title>
   <style>
-    body { font-family: system-ui, sans-serif; margin: 0; padding: 24px; display: grid; gap: 20px; place-items: center; }
-    h1 { margin: 0 0 10px; }
-    .wrap { display: grid; gap: 18px; width: min(540px, 92vw); }
-    .timer { border: 1px solid #ddd; border-radius: 12px; padding: 16px; display: grid; gap: 12px; }
-    .time { font-size: 2.4rem; text-align: center; }
-    .row { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
-    button { padding: 10px 14px; border-radius: 10px; border: 1px solid #ccc; background: #f7f7f7; }
-    button:active { transform: scale(0.98); }
+    body { font-family: system-ui, sans-serif; margin:0; padding:24px; display:grid; place-items:center; }
+    .wrap { width:min(780px, 92vw); display:grid; gap:22px; }
+    h1 { margin:0 0 12px; text-align:center; }
+    .card { border:1px solid #ddd; border-radius:14px; padding:16px; display:grid; gap:10px; }
+    .label { font-weight:600; text-align:center; font-size:1.2rem; }
+    .since { font-size:0.95rem; opacity:0.7; text-align:center; }
+    .value { font-size: clamp(1.2rem, 6vw, 2rem); text-align:center; }
   </style>
 </head>
 <body>
   <div class="wrap">
     <h1>ME Timer</h1>
 
-    <div class="timer">
-      <div class="time" id="t1">00:00:00</div>
-      <div class="row">
-        <button onclick="start('t1')">Start</button>
-        <button onclick="stop('t1')">Stopp</button>
-        <button onclick="reset('t1')">Reset</button>
-      </div>
+    <div class="card">
+      <div class="label">Krank seit</div>
+      <div class="since">10.12.2022, 12:00</div>
+      <div id="t1" class="value">–</div>
     </div>
 
-    <div class="timer">
-      <div class="time" id="t2">00:00:00</div>
-      <div class="row">
-        <button onclick="start('t2')">Start</button>
-        <button onclick="stop('t2')">Stopp</button>
-        <button onclick="reset('t2')">Reset</button>
-      </div>
+    <div class="card">
+      <div class="label">Very Severe ME seit</div>
+      <div class="since">23.12.2023, 16:30</div>
+      <div id="t2" class="value">–</div>
     </div>
   </div>
 
   <script>
-    const states = {}; 
+    // Startdaten (Deutschland: Winterzeit = UTC+1)
+    const start1 = new Date("2022-12-10T12:00:00+01:00");
+    const start2 = new Date("2023-12-23T16:30:00+01:00");
 
-    function fmt(sec){
-      const h = String(Math.floor(sec/3600)).padStart(2,'0');
-      const m = String(Math.floor((sec%3600)/60)).padStart(2,'0');
-      const s = String(Math.floor(sec%60)).padStart(2,'0');
-      return `${h}:${m}:${s}`;
+    function fmtDHMS(sec){
+      const d = Math.floor(sec / 86400);
+      const h = Math.floor((sec % 86400) / 3600);
+      const m = Math.floor((sec % 3600) / 60);
+      const s = Math.floor(sec % 60);
+      const pad = n => String(n).padStart(2, "0");
+      return `${d} Tage ${pad(h)} Stunden ${pad(m)} Minuten ${pad(s)} Sekunden`;
     }
-    function ensure(id){
-      if(!states[id]) states[id] = { elapsed:0, running:false, last:0, handle:null };
-      return states[id];
-    }
-    function tick(id){
-      const st = ensure(id);
+
+    function update(){
       const now = Date.now();
-      st.elapsed += (now - st.last)/1000;
-      st.last = now;
-      document.getElementById(id).textContent = fmt(st.elapsed);
+      document.getElementById("t1").textContent = fmtDHMS((now - start1.getTime())/1000);
+      document.getElementById("t2").textContent = fmtDHMS((now - start2.getTime())/1000);
     }
-    function start(id){
-      const st = ensure(id);
-      if(st.running) return;
-      st.running = true;
-      st.last = Date.now();
-      st.handle = setInterval(()=>tick(id), 250);
-    }
-    function stop(id){
-      const st = ensure(id);
-      if(!st.running) return;
-      st.running = false;
-      clearInterval(st.handle);
-      tick(id);
-    }
-    function reset(id){
-      const st = ensure(id);
-      st.elapsed = 0;
-      document.getElementById(id).textContent = "00:00:00";
-    }
+
+    update();
+    setInterval(update, 1000);
   </script>
 </body>
 </html>
